@@ -69,6 +69,11 @@ body {
   border-radius: 10px;
 }
 
+.error-message {
+  color: var(--color-red);
+  text-transform: capitalize;
+}
+
 /* WeatherData Component */
 .weatherdata-container {
   color: var(--color-white);

@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // Form komponens tartalmazza az input mezőket és a függvényt a koordináták beküldéséhez a szerver oldalra.
 export default function Form({ id, onGetData }) {
   const [lat, setLat] = useState('');
   const [lon, setLon] =  useState('');
   const [isCancelable, setIsCancelable] = useState(false);
+  const [error, setError] = useState('');
 
   // Az időjárási adatok lekérése a szerver oldalról
   const handleSubmit = async (e) => {
@@ -19,17 +20,18 @@ export default function Form({ id, onGetData }) {
           'Content-Type': 'application/json'
         }
       });
-
+;
       if (res.ok) {
-        console.log('Success!');
         const data = await res.json();
         onGetData(id, data);
         setIsCancelable(true);
       } else {
-        console.log("Oops! Something is wrong.");
+        return res.json().then((error) => {
+            setError(error.message);
+          });
       }
     } catch (error) {
-      console.error(error);
+        setError('Error fetching data');
     }
   };
 
@@ -41,16 +43,16 @@ export default function Form({ id, onGetData }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
-    <h2 className="text-center mb-3 font-semibold">City Coordinates</h2>
+        <h2 className="text-center mb-3 font-semibold">City Coordinates</h2>
 
-      <div className="grid gap-6 md:grid-cols-2">
-          <div className="flex-grow">
+        <div className="grid gap-6 md:grid-cols-2">
+            <div className="flex-grow">
             <label htmlFor="lat" className="block text-sm font-medium leading-6 text-gray-900">
-              Latitude
+                Latitude
             </label>
             <div className="mt-2">
-              <input
-                type="text"
+                <input
+                type="number"
                 name="lat"
                 id="lat"
                 autoComplete="given-name"
@@ -58,16 +60,16 @@ export default function Form({ id, onGetData }) {
                 value={lat}
                 onChange={e => setLat(e.target.value)}
                 required
-              />
+                />
             </div>
-          </div>
-          <div className="flex-grow">
+            </div>
+            <div className="flex-grow">
             <label htmlFor="lon" className="block text-sm font-medium leading-6 text-gray-900">
-              Longitude
+                Longitude
             </label>
             <div className="mt-2">
-              <input
-                type="text"
+                <input
+                type="number"
                 name="lon"
                 id="lon"
                 autoComplete="given-name"
@@ -75,10 +77,11 @@ export default function Form({ id, onGetData }) {
                 value={lon}
                 onChange={e => setLon(e.target.value)}
                 required
-              />
+                />
             </div>
-          </div>
-      </div>
+            </div>
+        </div>
+        {error && <p className="error-message mt-2 text-xs">{error}</p>}
 
       <div className="mt-6 flex items-center justify-center gap-x-6">
       {/* <button type="button" className="btn-secondary text-sm font-semibold leading-6 text-gray-900" onClick={handleCancelData} disabled={!isCancelable}>
